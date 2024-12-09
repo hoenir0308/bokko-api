@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+motor
+python-multipart
+telegram_webapp_auth
+httpx
