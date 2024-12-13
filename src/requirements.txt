@@ -4,3 +4,4 @@ motor
 python-multipart
 telegram_webapp_auth
 httpx
+openai
