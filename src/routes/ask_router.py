@@ -16,8 +16,26 @@ async def fetch_motivate(goal_id: str,
     db_user = await repo.find_one("users", {"tg_id": user.id})
     if not docoment:
         raise HTTPException(404, "document not found")
-    response = await ask_decomposing(docoment["title"], docoment["description"], 
-                                     f'{db_user["first_name"]} {db_user["last_name"]}', db_user["age"])
-    return {"detail": response}
+
+    resp = [
+        {
+            "title": "Task 1",
+            "description": "description",
+        },
+        {
+            "title": "Task 2",
+            "description": "description",
+        },
+        {
+            "title": "Task 3",
+            "description": "description",
+        },
+        {
+            "title": "Task 4",
+            "description": "description",
+        },
+    ]
+
+    return {"detail": resp}
 
 
