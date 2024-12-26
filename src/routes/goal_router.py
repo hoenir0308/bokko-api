@@ -44,12 +44,13 @@ async def fetch_goals(repo: Repository = Depends(get_repository),
         cd = documents[i]
         tasks = await repo.find_many("tasks", {"goal_id": cd["_id"]})
         ct = 0
+        cp = 0
 
         for t in tasks:
             if t["complete"]: ct += 1
         
-        if len(tasks) == 0: cp = 0
-        else: cp = int(100.0 / len(tasks) * ct)
+        if len(tasks) != 0:
+            cp = int(100.0 / len(tasks) * ct)
 
         documents[i]["complete"] = cp
 
