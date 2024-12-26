@@ -40,6 +40,12 @@ async def fetch_goals(repo: Repository = Depends(get_repository),
     documents = await repo.find_many("goals", {"tg_id": user.id})
     return await get_serialize_document(documents)
 
+@router.get("/tasks/")
+async def fetch_tasks(goal_id: str,
+                    repo: Repository = Depends(get_repository)):
+    documents = await repo.find_many("tasks", {"goal_id": goal_id})
+    return await get_serialize_document(documents)
+
 @router.delete("/")
 async def delete_goal(id: str,
                       repo: Repository = Depends(get_repository),
