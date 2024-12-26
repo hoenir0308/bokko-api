@@ -19,6 +19,21 @@ async def create_goal(request: GoalModel,
     doc = await repo.find_one("goals", {"_id": ins_id})
     return await get_serialize_document(doc)
 
+@router.put("/")
+async def update_goal(goal_id: str, 
+                      request: GoalModel, 
+                      repo: Repository = Depends(get_repository), 
+                      user: TelegramUser = Depends(get_current_user)):
+    filter_query = {"_id": goal_id, "tg_id": user.id}
+    update_data = {"$set": request.model_dump()}
+    update_result = await repo.update_one("goals", filter_query, update_data)
+    
+    if update_result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Goal not found or not modified")
+    
+    updated_doc = await repo.find_one("goals", filter_query)
+    return await get_serialize_document(updated_doc)
+
 @router.get("/")
 async def fetch_goals(repo: Repository = Depends(get_repository),
                     user: TelegramUser = Depends(get_current_user)):
