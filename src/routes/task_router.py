@@ -61,13 +61,13 @@ async def fetch_tasks(goal_id: str | None = None,
     return await get_serialize_document(tasks)
 
 @router.put("/confurm/")
-async def confurm_task(task_id: str,
+async def confurm_task(task_id: str, state: bool,
                        repo: Repository = Depends(get_repository),
                        user: TelegramUser = Depends(get_current_user)):
     document = await repo.find_one("tasks", {"_id": bson.ObjectId(task_id), "tg_id": user.id})
     if not document:
         raise HTTPException(404, "task not found")
-    await repo.update_one("tasks", {"_id": bson.ObjectId(task_id)}, {"complite": True, "end_date": datetime.now()})
+    await repo.update_one("tasks", {"_id": bson.ObjectId(task_id)}, {"complite": state, "end_date": datetime.now()})
     doc = await repo.find_one("tasks", {"_id": bson.ObjectId(task_id)})
     return await get_serialize_document(doc)
 
