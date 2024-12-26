@@ -1,3 +1,4 @@
+from annotated_types import doc
 from fastapi import APIRouter, Depends, HTTPException
 from data.depends import get_repository
 from middleware.auth import get_current_user
@@ -38,6 +39,18 @@ async def update_goal(goal_id: str,
 async def fetch_goals(repo: Repository = Depends(get_repository),
                     user: TelegramUser = Depends(get_current_user)):
     documents = await repo.find_many("goals", {"tg_id": user.id})
+
+    for i in range(len(documents)):
+        cd = documents[i]
+        tasks = await repo.find_many("tasks", {"goal_id": cd["_id"]})
+        ct = 0
+
+        for t in tasks:
+            if t["complete"]: ct += 1
+
+        cp = int(100.0 / len(tasks) * ct)
+        documents[i]["complete"] = cp
+
     return await get_serialize_document(documents)
 
 @router.get("/tasks/")
