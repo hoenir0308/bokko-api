@@ -47,7 +47,7 @@ async def fetch_goals(repo: Repository = Depends(get_repository),
         cp = 0
 
         for t in tasks:
-            if t["complete"]: ct += 1
+            if t["complite"]: ct += 1
         
         if len(tasks) != 0:
             cp = int(100.0 / len(tasks) * ct)
