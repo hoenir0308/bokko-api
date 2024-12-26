@@ -47,8 +47,10 @@ async def fetch_goals(repo: Repository = Depends(get_repository),
 
         for t in tasks:
             if t["complete"]: ct += 1
+        
+        if len(tasks) == 0: cp = 0
+        else: cp = int(100.0 / len(tasks) * ct)
 
-        cp = int(100.0 / len(tasks) * ct)
         documents[i]["complete"] = cp
 
     return await get_serialize_document(documents)
