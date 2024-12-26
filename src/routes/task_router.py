@@ -71,6 +71,28 @@ async def confurm_task(task_id: str, state: bool,
     doc = await repo.find_one("tasks", {"_id": bson.ObjectId(task_id)})
     return await get_serialize_document(doc)
 
+@router.put("/")
+async def update_task(task_id: str,
+                      request: TaskModel,
+                      repo: Repository = Depends(get_repository),
+                      user: TelegramUser = Depends(get_current_user)):
+    task_document = await repo.find_one("tasks", 
+                                        {"_id": bson.ObjectId(task_id), "tg_id": user.id})
+    if not task_document:
+        raise HTTPException(404, "Task not found or does not belong to the user")
+    
+    update_data = request.model_dump()
+    
+    result = await repo.update_one("tasks", 
+                                   {"_id": bson.ObjectId(task_id)}, 
+                                   {"$set": update_data})
+    
+    if result.modified_count == 0:
+        raise HTTPException(500, "Failed to update the task")
+    
+    updated_task = await repo.find_one("tasks", {"_id": bson.ObjectId(task_id)})
+    return await get_serialize_document(updated_task)
+
 @router.delete("/")
 async def delete_task(task_id: str,
                       repo: Repository = Depends(get_repository),
