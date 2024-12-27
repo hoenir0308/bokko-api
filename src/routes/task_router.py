@@ -27,6 +27,18 @@ async def create_task(goal_id: str,
     doc = await repo.find_one("tasks", {"_id": ins_id})
     return await get_serialize_document(doc)
 
+@router.get("/fromid/")
+async def fetch_task_fromid(task_id: str,
+                      repo: Repository = Depends(get_repository),
+                      user: TelegramUser = Depends(get_current_user)):
+
+    task = repo.find_one("tasks", {"_id": bson.ObjectId(task_id), "tg_id": user.id})
+    if not task:
+        raise HTTPException(404, "task not found")
+
+    return get_serialize_document(task)
+
+
 @router.get("/")
 async def fetch_tasks(goal_id: str | None = None,
                       date: datetime | None = None,
