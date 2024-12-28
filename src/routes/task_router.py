@@ -15,7 +15,7 @@ async def create_task(goal_id: str,
                       request: TaskModel,
                       repo: Repository = Depends(get_repository),
                       user: TelegramUser = Depends(get_current_user)):
-    goal_document = await repo.find_one("goals", 
+    goal_document = await repo.find_one("goals",
                                         {"_id": bson.ObjectId(goal_id), "tg_id": user.id})
     if not goal_document:
         raise HTTPException(404, "goal not found")
@@ -32,7 +32,7 @@ async def fetch_task_fromid(task_id: str,
                       repo: Repository = Depends(get_repository),
                       user: TelegramUser = Depends(get_current_user)):
 
-    task = repo.find_one("tasks", {"_id": bson.ObjectId(task_id), "tg_id": user.id})
+    task = await repo.find_one("tasks", {"_id": bson.ObjectId(task_id), "tg_id": user.id})
     if not task:
         raise HTTPException(404, "task not found")
 
@@ -48,7 +48,7 @@ async def fetch_tasks(goal_id: str | None = None,
         goal_document = await repo.find_one("goals", {"_id": bson.ObjectId(goal_id), "tg_id": user.id})
         if not goal_document:
             raise HTTPException(404, "goal not found")
-    
+
     if date:
         start_of_day = datetime(date.year, date.month, date.day)
         end_of_day = datetime(date.year, date.month, date.day, 23, 59, 59)
@@ -58,18 +58,18 @@ async def fetch_tasks(goal_id: str | None = None,
         }
         if goal_id:
             query["goal_id"] = goal_id
-        
+
         tasks = await repo.find_many("tasks", query)
-    
+
     else:
         query = {}
         if goal_id:
-            query["goal_id"] = goal_id  
+            query["goal_id"] = goal_id
         else:
-            query["tg_id"] = user.id  
-        
+            query["tg_id"] = user.id
+
         tasks = await repo.find_many("tasks", query)
-    
+
     return await get_serialize_document(tasks)
 
 @router.put("/confurm/")
@@ -88,20 +88,20 @@ async def update_task(task_id: str,
                       request: TaskModel,
                       repo: Repository = Depends(get_repository),
                       user: TelegramUser = Depends(get_current_user)):
-    task_document = await repo.find_one("tasks", 
+    task_document = await repo.find_one("tasks",
                                         {"_id": bson.ObjectId(task_id), "tg_id": user.id})
     if not task_document:
         raise HTTPException(404, "Task not found or does not belong to the user")
-    
+
     update_data = request.model_dump()
-    
-    result = await repo.update_one("tasks", 
-                                   {"_id": bson.ObjectId(task_id)}, 
+
+    result = await repo.update_one("tasks",
+                                   {"_id": bson.ObjectId(task_id)},
                                    {"$set": update_data})
-    
+
     if result.modified_count == 0:
         raise HTTPException(500, "Failed to update the task")
-    
+
     updated_task = await repo.find_one("tasks", {"_id": bson.ObjectId(task_id)})
     return await get_serialize_document(updated_task)
 
