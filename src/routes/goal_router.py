@@ -42,7 +42,7 @@ async def fetch_goals(repo: Repository = Depends(get_repository),
 
     for i in range(len(documents)):
         cd = documents[i]
-        tasks = await repo.find_many("tasks", {"goal_id": cd["_id"].str()})
+        tasks = await repo.find_many("tasks", {"goal_id": str(cd["_id"])})
         ct = 0
         cp = 0
 
