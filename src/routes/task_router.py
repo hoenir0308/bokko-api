@@ -36,7 +36,7 @@ async def fetch_task_fromid(task_id: str,
     if not task:
         raise HTTPException(404, "task not found")
 
-    return get_serialize_document(task)
+    return await get_serialize_document(task)
 
 
 @router.get("/")
