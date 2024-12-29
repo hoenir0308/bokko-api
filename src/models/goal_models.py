@@ -11,3 +11,4 @@ class TaskModel(BaseModel):
     description: str
     complite: bool
     deadline: datetime
+    end_date: datetime
