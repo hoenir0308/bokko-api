@@ -6,9 +6,15 @@ from middleware.auth import TelegramUser
 from models.goal_models import TaskModel
 from utils.serialize import get_serialize_document
 from datetime import datetime
+from typing import List
+from pydantic import BaseModel, Field
 import bson
 
 router = APIRouter()
+
+class TaskUpdateModel(BaseModel):
+    task_id: str = Field(..., description="ID задачи в базе данных")
+    updates: dict = Field(..., description="Словарь изменений для задачи")
 
 @router.post("/")
 async def create_task(goal_id: str,
@@ -83,27 +89,36 @@ async def confurm_task(task_id: str, state: bool,
     doc = await repo.find_one("tasks", {"_id": bson.ObjectId(task_id)})
     return await get_serialize_document(doc)
 
-@router.put("/")
-async def update_task(task_id: str,
-                      request: TaskModel,
-                      repo: Repository = Depends(get_repository),
-                      user: TelegramUser = Depends(get_current_user)):
-    task_document = await repo.find_one("tasks",
-                                        {"_id": bson.ObjectId(task_id), "tg_id": user.id})
-    if not task_document:
-        raise HTTPException(404, "Task not found or does not belong to the user")
+@router.patch("/")
+async def update_tasks(
+    tasks: List[TaskUpdateModel],
+    repo: Repository = Depends(get_repository),
+    user: TelegramUser = Depends(get_current_user)
+):
+    updated_tasks = []
+    for task in tasks:
+        task_id = task.task_id
+        update_data = task.updates
 
-    update_data = request.model_dump()
+        task_document = await repo.find_one(
+            "tasks", {"_id": bson.ObjectId(task_id), "tg_id": user.id}
+        )
+        if not task_document:
+            raise HTTPException(404, f"Task with ID {task_id} not found or does not belong to the user")
 
-    result = await repo.update_one("tasks",
-                                   {"_id": bson.ObjectId(task_id)},
-                                   {"$set": update_data})
+        result = await repo.update_one(
+            "tasks",
+            {"_id": bson.ObjectId(task_id)},
+            {"$set": update_data}
+        )
 
-    if result.modified_count == 0:
-        raise HTTPException(500, "Failed to update the task")
+        if result.modified_count == 0:
+            raise HTTPException(500, f"Failed to update task with ID {task_id}")
 
-    updated_task = await repo.find_one("tasks", {"_id": bson.ObjectId(task_id)})
-    return await get_serialize_document(updated_task)
+        updated_task = await repo.find_one("tasks", {"_id": bson.ObjectId(task_id)})
+        updated_tasks.append(await get_serialize_document(updated_task))
+
+    return {"updated_tasks": updated_tasks}
 
 @router.delete("/")
 async def delete_task(task_id: str,
