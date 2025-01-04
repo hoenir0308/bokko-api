@@ -12,3 +12,4 @@ class TaskModel(BaseModel):
     complite: bool
     deadline: datetime
     end_date: datetime
+    index: int
