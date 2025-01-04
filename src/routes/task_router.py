@@ -106,6 +106,8 @@ async def update_tasks(
         if not task_document:
             raise HTTPException(404, f"Task with ID {task_id} not found or does not belong to the user")
 
+        del update_data["_id"]
+
         result = await repo.update_one(
             "tasks",
             {"_id": bson.ObjectId(task_id)},
