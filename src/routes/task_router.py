@@ -114,7 +114,7 @@ async def update_tasks(
             update_data
         )
 
-        if result.modified_count == 0:
+        if result == 0:
             raise HTTPException(500, f"Failed to update task with ID {task_id}")
 
         updated_task = await repo.find_one("tasks", {"_id": bson.ObjectId(task_id)})
