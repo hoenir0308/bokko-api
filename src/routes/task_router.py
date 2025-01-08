@@ -30,7 +30,7 @@ async def create_task(goal_id: str,
     document["create_date"] = datetime.now()
     document["tg_id"] = user.id
     ins_id = await repo.insert_one("tasks", document)
-    doc = await repo.find_one("tasks", {"_id": ins_id})
+    doc = await repo.find_one("tasks", {"_id": bson.ObjectId(ins_id)})
     return await get_serialize_document(doc)
 
 @router.get("/fromid/")
