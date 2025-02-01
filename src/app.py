@@ -14,7 +14,7 @@ app.include_router(task_router, prefix="/task", tags=["Task"])
 app.include_router(ask_router, prefix="/ask", tags=["Ask"])
 app.include_router(schreduler_router, prefix="/schreduler", tags=["Schreduler"])
 
-origins = ["*"]
+origins = ["https://benchmarkvc.ru"]
 
 app.add_middleware(
     CORSMiddleware,
