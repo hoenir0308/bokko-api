@@ -4,6 +4,8 @@ services:
     build: 
       context: ./src
       dockerfile: Dockerfile
+      ports:
+      - "8000:8000"
     networks:
       bokko_api_network:
         ipv4_address: 172.26.0.2
