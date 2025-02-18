@@ -1,0 +1,32 @@
+services:
+  api:
+    container_name: api
+    build: 
+      context: ./src
+      dockerfile: Dockerfile
+    networks:
+      bokko_api_network:
+        ipv4_address: 172.26.0.2
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo_db
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      bokko_api_network:
+        ipv4_address: 172.26.0.3
+
+
+networks:
+  bokko_api_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.26.0.0/16
+          gateway: 172.26.0.1
+
+
+volumes:
+  mongo_data:

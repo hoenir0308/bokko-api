@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  api:
+    container_name: api
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    ports:
+      - 8945:8000
+    networks:
+      - bokko_api_network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo_db
+    restart: always
+    ports:
+      - 9939:27017
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - bokko_api_network
+
+
+networks:
+  bokko_api_network:
+    driver: bridge
+
+volumes:
+  mongo_data:
